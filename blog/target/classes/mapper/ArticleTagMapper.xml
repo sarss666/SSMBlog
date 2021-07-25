@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tulun.dao.ArticleTagMapper">
+
+    <insert id="insertArticleTag" parameterType="com.tulun.model.ArticleTag">
+        insert into t_article_tag (articleId, tagId)
+        values(#{articleId}, #{tagId})
+    </insert>
+
+    <!--t_article_tag和t_tag表联合查询-->
+    <select id="selectArticleTagByArticleId" parameterType="int" resultType="com.tulun.model.ArticleTag">
+        select ta.articleId, ta.tagId, tt.tagName from t_article_tag ta join t_tag tt
+        on ta.tagId = tt.id where ta.articleId = #{articleId}
+    </select>
+</mapper>

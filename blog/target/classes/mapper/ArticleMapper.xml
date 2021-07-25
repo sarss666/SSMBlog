@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tulun.dao.ArticleMapper">
+
+    <insert id="insertArticle" keyProperty="id" useGeneratedKeys="true" parameterType="com.tulun.model.Article">
+        insert into t_article(categoryId, title, content, description, statue, author, createTime, showCount)
+        values(#{categoryId}, #{title}, #{content}, #{description}, #{statue}, #{author}, #{createTime}, #{showCount})
+    </insert>
+
+    <!--
+    resultType：指定返回类型（如果数据库中字段名和Java类的属性名一致，使用resultType）
+    resultMap：指定返回类型（解决数据库中字段名和Java类的属性名一致，需要显性的指定映射关系）
+
+    column：数据库字段名
+    property：Java类中属性名
+    jdbcType：数据库数据类型
+    javaType：Java属性类型
+    typeHandler：指定自定义类型映射
+    -->
+    <resultMap id="articleResult" type="com.tulun.model.Article">
+        <id column="id" property="id"/>
+        <id column="categoryId" property="categoryId"/>
+        <id column="title" property="title"/>
+        <id column="content" property="content" typeHandler="com.tulun.util.ConvertBlobTypeHandler"/>
+        <id column="description" property="description"/>
+        <id column="statue" property="statue"/>
+        <id column="author" property="author"/>
+        <id column="createTime" property="createTime"/>
+        <id column="showCount" property="showCount"/>
+    </resultMap>
+    <select id="selectArticleById" parameterType="int" resultMap="articleResult">
+        select * from t_article where id = #{id}
+    </select>
+
+    <update id="updateShowCount" parameterType="int">
+        update t_article set showCount = showCount + 1 where id = #{id}
+    </update>
+
+    <select id="selectAllArticles" resultMap="articleResult">
+        select * from t_article where statue = 0 order by createTime desc
+    </select>
+
+    <select id="selectArticlesByCategoryId" resultMap="articleResult">
+        select * from t_article where statue = 0 and categoryId = #{categoryId} order by createTime desc
+    </select>
+
+    <!--根据类别id、标题、标签id查询符合的数据
+        没有一个参数
+        只传递一个参数
+        传递两个参数
+        传递三个参数
+
+        mybatis提供特性：动态SQL概念
+
+        模糊匹配 like %title%  mysql提供函数concat(参数1, 参数2)
+    -->
+    <select id="selectArticles" resultMap="articleResult">
+        select * from t_article
+        <where>
+            <if test="article.categoryId != null and article.categoryId != 0">
+                and categoryId = #{article.categoryId}
+            </if>
+            <if test="article.tagId != null and article.tagId != 0">
+                and id in(select distinct articleId from t_article_tag where tagId = #{article.tagId})
+            </if>
+            <if test="article.title != null and article.title != ''">
+                and title like concat('%', concat(#{article.title}), '%')
+            </if>
+        </where>
+        order by createTime desc
+        limit #{pager.start}, #{pager.limit}
+    </select>
+
+    <select id="selectArticlesCount" parameterType="com.tulun.model.Article" resultType="int">
+        select count(*) from t_article
+        <where>
+            <if test="categoryId != null and categoryId != 0">
+                and categoryId = #{categoryId}
+            </if>
+            <if test="tagId != null and tagId != 0">
+                and id in(select distinct articleId from t_article_tag where tagId = #{tagId})
+            </if>
+            <if test="title != null and title != ''">
+                and title like concat('%', concat(#{title}), '%')
+            </if>
+        </where>
+    </select>
+    
+    <update id="updateStatue" parameterType="com.tulun.model.Article">
+        update t_article set statue = #{statue} where id = #{id}
+    </update>
+</mapper>

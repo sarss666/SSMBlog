@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!--数据源及映射都可以不配置，放在spring配置文件中-->
+    <!--配置数据源，可以在spring配置文件中配置-->
+    <!--配置映射，可以在spring配置文件中配置-->
+</configuration>
